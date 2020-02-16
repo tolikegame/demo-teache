@@ -35,10 +35,6 @@ public class BookingServiceImpl implements BookingService{
     public void addBooking(AddRequest addRequest) {
         Booking booking = new Booking();
 
-//        //建立者
-//        Users user = usersRepository.getOne(addRequest.getCreator());
-//        booking.setCreator(user);
-
         //會議室
         Rooms rooms = roomsRepository.getOne(addRequest.getRoom());
         booking.setRooms(rooms);
@@ -62,14 +58,16 @@ public class BookingServiceImpl implements BookingService{
         bookingRepository.save(booking);
 
         //日期+時間
+        this.saveBookingDate(addRequest, booking);
+
+    }
+
+    private void saveBookingDate(AddRequest addRequest, Booking booking) {
         List<Dates> datesList = new ArrayList<>();
+
         if(addRequest.isLongBooking()){
-            Dates bookingDate = new Dates();
-            bookingDate.setDate(addRequest.getDate());
-            bookingDate.setSartTime(addRequest.getStartTime());
-            bookingDate.setEndTime(addRequest.getEndTime());
-            bookingDate.setBooking(booking);
-            datesList.add(bookingDate);
+            this.bookingFirstDay(addRequest, booking, datesList);
+            //長期預約
             for(int i=1; i<12; i++){
                 Dates date = new Dates();
                 Calendar calendar = Calendar.getInstance();
@@ -85,14 +83,18 @@ public class BookingServiceImpl implements BookingService{
                 booking.setDateList(datesList);
             }
         }else {
-            Dates date = new Dates();
-            date.setDate(addRequest.getDate());
-            date.setSartTime(addRequest.getStartTime());
-            date.setEndTime(addRequest.getEndTime());
-            date.setBooking(booking);
-            datesList.add(date);
+            this.bookingFirstDay(addRequest, booking, datesList);
             booking.setDateList(datesList);
         }
-
     }
+
+    private void bookingFirstDay(AddRequest addRequest, Booking booking, List<Dates> datesList) {
+        Dates date = new Dates();
+        date.setDate(addRequest.getDate());
+        date.setSartTime(addRequest.getStartTime());
+        date.setEndTime(addRequest.getEndTime());
+        date.setBooking(booking);
+        datesList.add(date);
+    }
+
 }
