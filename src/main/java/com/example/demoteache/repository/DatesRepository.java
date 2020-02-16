@@ -12,4 +12,7 @@ public interface DatesRepository extends JpaRepository<Dates,Integer> {
 
 //    @Query("select d from Dates d where d.booking = ?1")
     Dates findByBooking(Booking booking);
+
+    List<Dates> findAllByBooking(Booking booking);
+
 }

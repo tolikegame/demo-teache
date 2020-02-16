@@ -5,6 +5,7 @@ import com.example.demoteache.model.po.Dates;
 import com.example.demoteache.model.po.Rooms;
 import com.example.demoteache.model.po.Users;
 import com.example.demoteache.model.request.AddRequest;
+import com.example.demoteache.model.request.UpdateLongRequest;
 import com.example.demoteache.model.request.UpdateRequest;
 import com.example.demoteache.repository.BookingRepository;
 import com.example.demoteache.repository.DatesRepository;
@@ -129,16 +130,52 @@ public class BookingServiceImpl implements BookingService{
 
     private void saveBookingDate(UpdateRequest updateRequest, Booking booking){
         List<Dates> datesList = new ArrayList<>();
-        this.bookingFirstDay(updateRequest, booking, datesList);
-        booking.setDateList(datesList);
-    }
-
-    private void bookingFirstDay(UpdateRequest updateRequest, Booking booking, List<Dates> datesList) {
         Dates date = datesRepository.findByBooking(booking);
         date.setDate(updateRequest.getDate());
         date.setSartTime(updateRequest.getStartTime());
         date.setEndTime(updateRequest.getEndTime());
         date.setBooking(booking);
         datesList.add(date);
+        booking.setDateList(datesList);
+    }
+
+    @Override
+    @Transactional
+    public void updateLongBooking(UpdateLongRequest updateLongRequest) {
+        Booking booking = bookingRepository.getOne(updateLongRequest.getBookingId());
+        Rooms rooms = roomsRepository.getOne(updateLongRequest.getRoom());
+        booking.setRooms(rooms);
+        booking.setTheme(updateLongRequest.getTheme());
+
+        //相關人
+        List<Users> usersList = new ArrayList<>();
+        //建立人
+        Users creator = usersRepository.getOne(updateLongRequest.getCreator());
+        usersList.add(creator);
+        //參加人
+        for(Integer joinUserId : updateLongRequest.getJoinUser()){
+            Users joinUser = usersRepository.getOne(joinUserId);
+            usersList.add(joinUser);
+        }
+        booking.setJoinUser(usersList);
+
+        //時間
+        this.saveBookingTime(updateLongRequest, booking);
+        bookingRepository.save(booking);
+    }
+
+    private void saveBookingTime(UpdateLongRequest updateLongRequest, Booking booking){
+        List<Dates> datesList = datesRepository.findAllByBooking(booking);
+        for(Dates date : datesList){
+            date.setSartTime(updateLongRequest.getStartTime());
+            date.setEndTime(updateLongRequest.getEndTime());
+            date.setBooking(booking);
+        }
+        booking.setDateList(datesList);
+    }
+
+    @Override
+    public void deleteBooking(int id) {
+        bookingRepository.deleteById(id);
     }
 }
