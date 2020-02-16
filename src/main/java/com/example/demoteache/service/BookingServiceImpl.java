@@ -5,7 +5,9 @@ import com.example.demoteache.model.po.Dates;
 import com.example.demoteache.model.po.Rooms;
 import com.example.demoteache.model.po.Users;
 import com.example.demoteache.model.request.AddRequest;
+import com.example.demoteache.model.request.UpdateRequest;
 import com.example.demoteache.repository.BookingRepository;
+import com.example.demoteache.repository.DatesRepository;
 import com.example.demoteache.repository.RoomsRepository;
 import com.example.demoteache.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,9 @@ public class BookingServiceImpl implements BookingService{
 
     @Autowired
     UsersRepository usersRepository;
+
+    @Autowired
+    DatesRepository datesRepository;
 
 
     @Override
@@ -97,4 +102,43 @@ public class BookingServiceImpl implements BookingService{
         datesList.add(date);
     }
 
+    @Override
+    @Transactional
+    public void updateBooking(UpdateRequest updateRequest) {
+        Booking booking = bookingRepository.getOne(updateRequest.getBookingId());
+        Rooms rooms = roomsRepository.getOne(updateRequest.getRoom());
+        booking.setRooms(rooms);
+        booking.setTheme(updateRequest.getTheme());
+
+        //相關人
+        List<Users> usersList = new ArrayList<>();
+        //建立人
+        Users creator = usersRepository.getOne(updateRequest.getCreator());
+        usersList.add(creator);
+        //參加人
+        for(Integer joinUserId : updateRequest.getJoinUser()){
+            Users joinUser = usersRepository.getOne(joinUserId);
+            usersList.add(joinUser);
+        }
+        booking.setJoinUser(usersList);
+
+        //日期+時間
+        this.saveBookingDate(updateRequest, booking);
+        bookingRepository.save(booking);
+    }
+
+    private void saveBookingDate(UpdateRequest updateRequest, Booking booking){
+        List<Dates> datesList = new ArrayList<>();
+        this.bookingFirstDay(updateRequest, booking, datesList);
+        booking.setDateList(datesList);
+    }
+
+    private void bookingFirstDay(UpdateRequest updateRequest, Booking booking, List<Dates> datesList) {
+        Dates date = datesRepository.findByBooking(booking);
+        date.setDate(updateRequest.getDate());
+        date.setSartTime(updateRequest.getStartTime());
+        date.setEndTime(updateRequest.getEndTime());
+        date.setBooking(booking);
+        datesList.add(date);
+    }
 }

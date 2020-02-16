@@ -1,9 +1,11 @@
 package com.example.demoteache.controller;
 
 import com.example.demoteache.model.request.AddRequest;
+import com.example.demoteache.model.request.UpdateRequest;
 import com.example.demoteache.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,6 +18,11 @@ public class BookingController {
     @PostMapping(value = "/addBooking")
     public void addBooking(@RequestBody AddRequest addRequest){
         bookingService.addBooking(addRequest);
+    }
+
+    @PutMapping(value = "/updateBooking")
+    public void updateBooking(@RequestBody UpdateRequest updateRequest){
+        bookingService.updateBooking(updateRequest);
     }
 
 
