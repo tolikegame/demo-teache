@@ -7,10 +7,12 @@ import com.example.demoteache.model.po.Users;
 import com.example.demoteache.model.request.AddRequest;
 import com.example.demoteache.model.request.UpdateLongRequest;
 import com.example.demoteache.model.request.UpdateRequest;
+import com.example.demoteache.model.response.BookingDetailResponse;
 import com.example.demoteache.repository.BookingRepository;
 import com.example.demoteache.repository.DatesRepository;
 import com.example.demoteache.repository.RoomsRepository;
 import com.example.demoteache.repository.UsersRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -177,5 +179,23 @@ public class BookingServiceImpl implements BookingService{
     @Override
     public void deleteBooking(int id) {
         bookingRepository.deleteById(id);
+    }
+
+    @Override
+    public BookingDetailResponse getBookingDetail(int id) {
+        Booking booking = bookingRepository.getOne(id);
+        BookingDetailResponse response = new BookingDetailResponse();
+        response.setRoomName(booking.getRooms().getName());
+        response.setTheme(booking.getTheme());
+
+        List<String> Users = new ArrayList<>();
+        for(int i=0; i<booking.getJoinUser().size(); i++){
+            Users.add(booking.getJoinUser().get(i).getName());
+        }
+        response.setJoinUser(Users);
+        response.setDate(booking.getDateList().get(0).getDate());
+        response.setStartTime(booking.getDateList().get(0).getSartTime());
+        response.setEndTime(booking.getDateList().get(0).getEndTime());
+        return response;
     }
 }

@@ -3,6 +3,7 @@ package com.example.demoteache.controller;
 import com.example.demoteache.model.request.AddRequest;
 import com.example.demoteache.model.request.UpdateLongRequest;
 import com.example.demoteache.model.request.UpdateRequest;
+import com.example.demoteache.model.response.BookingDetailResponse;
 import com.example.demoteache.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -33,5 +34,9 @@ public class BookingController {
         bookingService.deleteBooking(id);
     }
 
+    @GetMapping(value = "getBookingDetail")
+    public BookingDetailResponse getBookingDetail(int id){
+        return bookingService.getBookingDetail(id);
+    }
 
 }
