@@ -189,8 +189,10 @@ public class BookingServiceImpl implements BookingService{
         response.setTheme(booking.getTheme());
 
         List<String> Users = new ArrayList<>();
-        for(int i=0; i<booking.getJoinUser().size(); i++){
-            Users.add(booking.getJoinUser().get(i).getName());
+        if(booking.getJoinUser().size() != 1){
+            for(int i=1; i<booking.getJoinUser().size(); i++){
+                Users.add(booking.getJoinUser().get(i).getName());
+            }
         }
         response.setJoinUser(Users);
         response.setDate(booking.getDateList().get(0).getDate());
